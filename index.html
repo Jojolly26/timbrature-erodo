@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Presenze — ERODO OY</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #F5F4F0;
+    --surface: #FFFFFF;
+    --border: #E0DED8;
+    --text-primary: #1A1917;
+    --text-secondary: #6B6962;
+    --text-muted: #9B9891;
+    --accent: #1D4ED8;
+    --accent-hover: #1E40AF;
+    --success: #16A34A;
+    --success-bg: #F0FDF4;
+    --success-border: #BBF7D0;
+    --warning: #D97706;
+    --warning-bg: #FFFBEB;
+    --warning-border: #FDE68A;
+    --danger: #DC2626;
+    --danger-bg: #FEF2F2;
+    --danger-border: #FECACA;
+    --info-bg: #EFF6FF;
+    --info-border: #BFDBFE;
+    --mono: 'DM Mono', monospace;
+    --sans: 'DM Sans', sans-serif;
+  }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0 1rem 3rem;
+    color: var(--text-primary);
+  }
+
+  header {
+    width: 100%;
+    max-width: 480px;
+    padding: 2rem 0 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+  }
+
+  .brand {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--mono);
+  }
+
+  header h1 {
+    font-size: 22px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+    color: var(--text-primary);
+  }
+
+  .card {
+    width: 100%;
+    max-width: 480px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    margin-bottom: 1rem;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    font-family: var(--mono);
+    margin-bottom: 1rem;
+  }
+
+  .field {
+    margin-bottom: 1.25rem;
+  }
+
+  label {
+    display: block;
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+  }
+
+  input[type="text"] {
+    width: 100%;
+    padding: 11px 14px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    font-size: 15px;
+    font-family: var(--sans);
+    color: var(--text-primary);
+    background: var(--bg);
+    transition: border-color 0.15s, background 0.15s;
+    outline: none;
+    -webkit-appearance: none;
+  }
+
+  input[type="text"]:focus {
+    border-color: var(--accent);
+    background: #fff;
+  }
+
+  input[type="text"]::placeholder {
+    color: var(--text-muted);
+  }
+
+  .datetime-display {
+    font-family: var(--mono);
+    font-size: 15px;
+    font-weight: 400;
+    color: var(--text-primary);
+    padding: 11px 14px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+  }
+
+  .gps-box {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 12px 14px;
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .gps-indicator {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    margin-top: 5px;
+    flex-shrink: 0;
+    background: var(--text-muted);
+  }
+
+  .gps-indicator.acquiring {
+    background: var(--warning);
+    animation: pulse 1.2s infinite;
+  }
+
+  .gps-indicator.ok {
+    background: var(--success);
+  }
+
+  .gps-indicator.error {
+    background: var(--danger);
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.3; }
+  }
+
+  .gps-text {
+    flex: 1;
+    min-width: 0;
+  }
+
+  .gps-status {
+    font-size: 13px;
+    color: var(--text-secondary);
+    font-weight: 500;
+  }
+
+  .gps-coords {
+    font-family: var(--mono);
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .maps-link {
+    font-size: 12px;
+    color: var(--accent);
+    text-decoration: none;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+    align-self: center;
+  }
+
+  .maps-link:hover { text-decoration: underline; }
+
+  .tipo-section {
+    margin-bottom: 0;
+  }
+
+  .tipo-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+  }
+
+  .tipo-btn {
+    padding: 12px 8px;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--bg);
+    font-family: var(--sans);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+    line-height: 1.3;
+  }
+
+  .tipo-btn:hover {
+    border-color: #CBD5E1;
+    background: #f8f8f6;
+  }
+
+  .tipo-btn.selected {
+    border-color: var(--accent);
+    background: var(--info-bg);
+    color: var(--accent);
+  }
+
+  .tipo-icon {
+    display: block;
+    font-size: 18px;
+    margin-bottom: 4px;
+  }
+
+  .submit-btn {
+    width: 100%;
+    max-width: 480px;
+    padding: 14px;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    font-family: var(--sans);
+    font-size: 15px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s, transform 0.1s;
+    letter-spacing: -0.01em;
+    margin-bottom: 1rem;
+  }
+
+  .submit-btn:hover { background: var(--accent-hover); }
+  .submit-btn:active { transform: scale(0.98); }
+  .submit-btn:disabled {
+    background: #CBD5E1;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  .alert {
+    width: 100%;
+    max-width: 480px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    font-size: 14px;
+    line-height: 1.5;
+    display: none;
+    margin-bottom: 1rem;
+  }
+
+  .alert.success {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    color: #15803D;
+  }
+
+  .alert.error {
+    background: var(--danger-bg);
+    border: 1px solid var(--danger-border);
+    color: #B91C1C;
+  }
+
+  .alert.show { display: block; }
+
+  .alert-title {
+    font-weight: 600;
+    margin-bottom: 2px;
+  }
+
+  .spinner {
+    display: none;
+    width: 18px;
+    height: 18px;
+    border: 2px solid rgba(255,255,255,0.4);
+    border-top-color: #fff;
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .submit-inner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  footer {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 1rem;
+    font-family: var(--mono);
+    max-width: 480px;
+  }
+
+  @media (max-width: 380px) {
+    .tipo-btn { font-size: 12px; padding: 10px 6px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <span class="brand">ERODO OY — Gestione Presenze</span>
+  <h1>Timbratura lavoratore</h1>
+</header>
+
+<div class="card">
+  <p class="card-title">Identificazione</p>
+  <div class="field">
+    <label for="nome">Nome e Cognome</label>
+    <input type="text" id="nome" placeholder="Es. Mario Rossi" autocomplete="name" autocapitalize="words">
+  </div>
+  <div class="field" style="margin-bottom: 0;">
+    <label>Data e ora</label>
+    <div class="datetime-display" id="datetime-display">—</div>
+  </div>
+</div>
+
+<div class="card">
+  <p class="card-title">Geolocalizzazione</p>
+  <div class="gps-box">
+    <div class="gps-indicator acquiring" id="gps-dot"></div>
+    <div class="gps-text">
+      <div class="gps-status" id="gps-status">Acquisizione in corso…</div>
+      <div class="gps-coords" id="gps-coords"></div>
+    </div>
+    <a href="#" class="maps-link" id="maps-link" style="display:none;" target="_blank">Apri Maps →</a>
+  </div>
+</div>
+
+<div class="card">
+  <p class="card-title">Dispositivo</p>
+  <div class="gps-box" id="device-box">
+    <div class="gps-text">
+      <div class="gps-status" id="device-label">Rilevamento…</div>
+      <div class="gps-coords" id="device-id-display"></div>
+    </div>
+    <span id="device-badge" style="font-size:11px;font-family:var(--mono);padding:3px 8px;border-radius:6px;flex-shrink:0;align-self:center;display:none;"></span>
+  </div>
+</div>
+
+<div class="card">
+  <p class="card-title">Tipo timbratura</p>
+  <div class="tipo-section">
+    <div class="tipo-grid">
+      <button class="tipo-btn" data-tipo="Entrata" onclick="selectTipo(this)">
+        <span class="tipo-icon">▶</span>Entrata
+      </button>
+      <button class="tipo-btn" data-tipo="Pausa" onclick="selectTipo(this)">
+        <span class="tipo-icon">⏸</span>Pausa
+      </button>
+      <button class="tipo-btn" data-tipo="Uscita" onclick="selectTipo(this)">
+        <span class="tipo-icon">⏹</span>Uscita
+      </button>
+    </div>
+  </div>
+</div>
+
+<div class="alert" id="alert-box">
+  <div class="alert-title" id="alert-title"></div>
+  <div id="alert-msg"></div>
+</div>
+
+<button class="submit-btn" id="submit-btn" onclick="invia()">
+  <div class="submit-inner">
+    <div class="spinner" id="spinner"></div>
+    <span id="btn-label">Invia timbratura</span>
+  </div>
+</button>
+
+<footer>
+  I dati vengono salvati in tempo reale sul foglio Google condiviso con ERODO OY.
+  La posizione GPS viene acquisita solo al momento della timbratura.
+</footer>
+
+<script>
+  // ── CONFIGURA QUI ──────────────────────────────────────────────────────────
+  const SCRIPT_URL = "https://script.google.com/macros/s/TUO_ID_SCRIPT/exec";
+  // ──────────────────────────────────────────────────────────────────────────
+
+  let lat = null, lon = null, acc = null;
+  let tipoSelezionato = null;
+  let intervalloOra = null;
+
+  // ── DEVICE FINGERPRINT ────────────────────────────────────────────────────
+  function getOrCreateDeviceId() {
+    let id = localStorage.getItem("erodo_device_id");
+    if (!id) {
+      // Genera ID univoco basato su caratteristiche del dispositivo + random
+      const entropy = [
+        navigator.userAgent,
+        navigator.language,
+        screen.width + "x" + screen.height,
+        screen.colorDepth,
+        new Date().getTimezoneOffset(),
+        navigator.hardwareConcurrency || 0,
+        Math.random().toString(36).slice(2)
+      ].join("|");
+      // Hash semplice deterministico
+      let hash = 0;
+      for (let i = 0; i < entropy.length; i++) {
+        hash = ((hash << 5) - hash) + entropy.charCodeAt(i);
+        hash |= 0;
+      }
+      id = Math.abs(hash).toString(36).padStart(8, "0") + "-" +
+           Date.now().toString(36).slice(-4);
+      localStorage.setItem("erodo_device_id", id);
+      localStorage.setItem("erodo_device_first_seen", new Date().toISOString());
+    }
+    return id;
+  }
+
+  function getDeviceInfo() {
+    const ua = navigator.userAgent;
+    let os = "Sconosciuto", browser = "Sconosciuto", tipo = "Desktop";
+
+    if (/iPhone|iPad|iPod/.test(ua)) { os = /iPad/.test(ua) ? "iPadOS" : "iOS"; tipo = "Mobile"; }
+    else if (/Android/.test(ua)) { os = "Android"; tipo = "Mobile"; }
+    else if (/Windows/.test(ua)) os = "Windows";
+    else if (/Mac OS X/.test(ua)) os = "macOS";
+    else if (/Linux/.test(ua)) os = "Linux";
+
+    if (/CriOS/.test(ua)) browser = "Chrome (iOS)";
+    else if (/FxiOS/.test(ua)) browser = "Firefox (iOS)";
+    else if (/EdgA/.test(ua)) browser = "Edge (Android)";
+    else if (/SamsungBrowser/.test(ua)) browser = "Samsung Browser";
+    else if (/Chrome/.test(ua) && !/Chromium/.test(ua)) browser = "Chrome";
+    else if (/Safari/.test(ua) && !/Chrome/.test(ua)) browser = "Safari";
+    else if (/Firefox/.test(ua)) browser = "Firefox";
+    else if (/Edg/.test(ua)) browser = "Edge";
+
+    if (/Mobi|Android/i.test(ua) && tipo !== "Mobile") tipo = "Mobile";
+    if (/Tablet|iPad/.test(ua)) tipo = "Tablet";
+
+    return { os, browser, tipo };
+  }
+
+  const deviceId = getOrCreateDeviceId();
+  const deviceInfo = getDeviceInfo();
+  const firstSeen = localStorage.getItem("erodo_device_first_seen") || new Date().toISOString();
+  const isNewDevice = (Date.now() - new Date(firstSeen).getTime()) < 5000;
+
+  // Mostra info dispositivo nell'UI
+  document.getElementById("device-label").textContent =
+    `${deviceInfo.tipo} — ${deviceInfo.os} / ${deviceInfo.browser}`;
+  document.getElementById("device-id-display").textContent = "ID: " + deviceId;
+
+  const badge = document.getElementById("device-badge");
+  badge.style.display = "inline-block";
+  if (isNewDevice) {
+    badge.textContent = "Nuovo";
+    badge.style.background = "#FEF3C7";
+    badge.style.color = "#92400E";
+  } else {
+    badge.textContent = "Noto";
+    badge.style.background = "#D1FAE5";
+    badge.style.color = "#065F46";
+  }
+  // ─────────────────────────────────────────────────────────────────────────
+
+  function aggiornaOra() {
+    const now = new Date();
+    const giorni = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+    const g = giorni[now.getDay()];
+    const data = `${g} ${String(now.getDate()).padStart(2,'0')}/${String(now.getMonth()+1).padStart(2,'0')}/${now.getFullYear()}`;
+    const ora = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+    document.getElementById("datetime-display").textContent = `${data} — ${ora}`;
+  }
+
+  aggiornaOra();
+  intervalloOra = setInterval(aggiornaOra, 1000);
+
+  if (navigator.geolocation) {
+    navigator.geolocation.watchPosition(
+      function(pos) {
+        lat = pos.coords.latitude.toFixed(6);
+        lon = pos.coords.longitude.toFixed(6);
+        acc = Math.round(pos.coords.accuracy);
+        document.getElementById("gps-dot").className = "gps-indicator ok";
+        document.getElementById("gps-status").textContent = `Posizione acquisita (±${acc}m)`;
+        document.getElementById("gps-coords").textContent = `${lat}, ${lon}`;
+        const link = document.getElementById("maps-link");
+        link.href = `https://maps.google.com/?q=${lat},${lon}`;
+        link.style.display = "block";
+      },
+      function(err) {
+        document.getElementById("gps-dot").className = "gps-indicator error";
+        let msg = "GPS non disponibile";
+        if (err.code === 1) msg = "Permesso GPS negato";
+        else if (err.code === 3) msg = "Timeout GPS";
+        document.getElementById("gps-status").textContent = msg;
+      },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 15000 }
+    );
+  } else {
+    document.getElementById("gps-dot").className = "gps-indicator error";
+    document.getElementById("gps-status").textContent = "GPS non supportato";
+  }
+
+  function selectTipo(btn) {
+    document.querySelectorAll(".tipo-btn").forEach(b => b.classList.remove("selected"));
+    btn.classList.add("selected");
+    tipoSelezionato = btn.dataset.tipo;
+  }
+
+  function showAlert(tipo, title, msg) {
+    const box = document.getElementById("alert-box");
+    box.className = `alert ${tipo} show`;
+    document.getElementById("alert-title").textContent = title;
+    document.getElementById("alert-msg").textContent = msg;
+    box.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  function hideAlert() {
+    document.getElementById("alert-box").className = "alert";
+  }
+
+  async function invia() {
+    hideAlert();
+    const nome = document.getElementById("nome").value.trim();
+
+    if (!nome) {
+      showAlert("error", "Campo obbligatorio", "Inserisci nome e cognome prima di procedere.");
+      document.getElementById("nome").focus();
+      return;
+    }
+
+    if (!tipoSelezionato) {
+      showAlert("error", "Tipo mancante", "Seleziona il tipo di timbratura: Entrata, Pausa o Uscita.");
+      return;
+    }
+
+    if (!lat || !lon) {
+      showAlert("error", "GPS non pronto", "Attendi l'acquisizione della posizione GPS prima di inviare.");
+      return;
+    }
+
+    const btn = document.getElementById("submit-btn");
+    btn.disabled = true;
+    document.getElementById("spinner").style.display = "block";
+    document.getElementById("btn-label").textContent = "Invio in corso…";
+
+    const now = new Date();
+    const payload = {
+      nome: nome,
+      tipo: tipoSelezionato,
+      data: now.toLocaleDateString("it-IT"),
+      ora: now.toLocaleTimeString("it-IT"),
+      timestamp: now.toISOString(),
+      lat: lat,
+      lon: lon,
+      accuratezza: acc + "m",
+      maps: `https://maps.google.com/?q=${lat},${lon}`,
+      device_id: deviceId,
+      device_tipo: deviceInfo.tipo,
+      device_os: deviceInfo.os,
+      device_browser: deviceInfo.browser,
+      device_first_seen: firstSeen
+    };
+
+    try {
+      const response = await fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify(payload)
+      });
+
+      if (response.ok) {
+        showAlert("success", "Timbratura registrata ✓",
+          `${tipoSelezionato} di ${nome} salvata alle ${payload.ora}.`);
+        document.getElementById("nome").value = "";
+        document.querySelectorAll(".tipo-btn").forEach(b => b.classList.remove("selected"));
+        tipoSelezionato = null;
+      } else {
+        throw new Error("Risposta server: " + response.status);
+      }
+    } catch (err) {
+      showAlert("error", "Errore di invio",
+        "Non è stato possibile salvare la timbratura. Controlla la connessione e riprova. (" + err.message + ")");
+    } finally {
+      btn.disabled = false;
+      document.getElementById("spinner").style.display = "none";
+      document.getElementById("btn-label").textContent = "Invia timbratura";
+    }
+  }
+</script>
+</body>
+</html>

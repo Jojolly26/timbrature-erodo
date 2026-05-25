@@ -295,15 +295,14 @@ footer { font-size: 10px; color: var(--text3); text-align: center; margin-top: 8
     });
 
     try {
-      const response = await fetch(SCRIPT_URL + "?" + params.toString());
-      const result = await response.json();
-      if (result.status === "ok") {
+      const response = await fetch(SCRIPT_URL + "?" + params.toString(), { mode: "no-cors" });
+      if (response.ok || response.type === "opaque") {
         showAlert("success", "Timbratura registrata", `${tipoSelezionato} di ${nome} salvata alle ${now.toLocaleTimeString("it-IT")}.`);
         document.getElementById("nome").value = "";
         document.querySelectorAll(".tipo-btn").forEach(b => b.classList.remove("selected"));
         tipoSelezionato = null;
       } else {
-        throw new Error(result.message || "Errore sconosciuto");
+        throw new Error("Errore server");
       }
     } catch (err) {
       showAlert("error", "Errore di invio", "Non è stato possibile salvare la timbratura. Controlla la connessione e riprova.");
